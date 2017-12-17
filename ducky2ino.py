@@ -43,7 +43,7 @@ def key(key):
          (key >= 'A') and (key <= 'Z'):
          return '"%s"' % key.lower()
     else:
-        print('Error! Unknown key "%s" ', key)
+        #print('Error! Unknown key "%s" ' % key)
         return 0
 
 
@@ -86,45 +86,78 @@ def parse(str):
             add = '  //'
         script.append(add)
     elif com[0] == 'DELAY':
-        if (int(com[1]) < 1) or (int(com[1]) > 10000):
-            logo()
-            print('[*] Error, in line %sDELAY time is specified in milliseconds from 1 to 10000' % str)
+        try:
+            if (not com[1].isdecimal()):
+                raise IndexError
+            if (int(com[1]) < 1) or (int(com[1]) > 10000):
+                logo()
+                print('[*] Error, in line "%s" DELAY time is specified in milliseconds from 1 to 10000' % str.strip())
+                sys.exit()
+            add = '  delay(%s);' % com[1].strip()
+            script.append(add)
+        except IndexError:
+            print('[*] Error, in line "%s" invalid value of milliseconds' % str.strip())
             sys.exit()
-        add = '  delay(%s);' % com[1].strip()
-        script.append(add)
     elif com[0] == 'STRING':
-        add = '  Keyboard.print(F("' + com[1].strip().replace('\"', '\\\"') + '"));\n'
-        script.append(add)
+        try:
+            add = '  Keyboard.print(F("' + com[1].strip().replace('\"', '\\\"') + '"));\n'
+            script.append(add)
+        except IndexError:
+            print('[*] Error, in line "%s" invalid value' % str.strip())
+            sys.exit()
     elif com[0] == 'GUI' or com[0] == 'WINDOWS':
-        add = '  Keyboard.press(KEY_LEFT_GUI);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
-        script.append(add)
+        try:
+            add = '  typeKey(KEY_LEFT_GUI);\n'
+            k = com[1].strip()
+            if (len(k) == 1) and (key(k) != 0):
+                add = ('  Keyboard.press(KEY_LEFT_GUI);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' %
+                       key(com[1].strip().upper()))
+                script.append(add)
+            else:
+                print('[*] Error, in line "%s" invalid value' % str.strip())
+                sys.exit()
+
+        except IndexError:
+            script.append(add)
     elif com[0] == 'MENU' or com[0] == 'APP':
         add = '  typeKey(229);\n'
         script.append(add)
     elif com[0] == 'SHIFT':
         try:
-            if (len(str.strip()) > 5):
+            add = '  typeKey(KEY_LEFT_SHIFT);\n'
+            k = com[1].strip()
+            if (len(k) == 1) and (key(k) != 0):
                 add = '  Keyboard.press(KEY_LEFT_SHIFT);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
+                script.append(add)
             else:
-                add = '  typeKey(KEY_LEFT_SHIFT);\n'
+                print('[*] Error, in line "%s" invalid value' % str.strip())
+                sys.exit()
+        except IndexError:
             script.append(add)
-        except KeyError:
-            print('[*] Error, in line: %s' % str)
-            sys.exit()
     elif com[0] == 'ALT':
         try:
-            add = '  Keyboard.press(KEY_LEFT_ALT);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
+            add = '  typeKey(KEY_LEFT_ALT);\n'
+            k = com[1].strip()
+            if (len(k) == 1) and (key(k) != 0):
+                add = '  Keyboard.press(KEY_LEFT_ALT);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
+                script.append(add)
+            else:
+                print('[*] Error, in line "%s" invalid value' % str.strip())
+                sys.exit()
+        except IndexError:
             script.append(add)
-        except KeyError:
-            print('[*] Error, in line: %s' % str)
-            sys.exit()
     elif com[0] == 'CONTROL' or com[0] == 'CTRL':
         try:
-            add = '  Keyboard.press(KEY_LEFT_CTRL);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
+            add = '  typeKey(KEY_LEFT_CTRL);\n'
+            k = com[1].strip()
+            if (len(k) == 1) and (key(k) != 0):
+                add = '  Keyboard.press(KEY_LEFT_CTRL);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' % key(com[1].strip().upper())
+                script.append(add)
+            else:
+                print('[*] Error, in line "%s" invalid value' % str.strip())
+                sys.exit()
+        except IndexError:
             script.append(add)
-        except KeyError:
-            print('[*] Error, in line: %s' % str)
-            sys.exit()
     elif com[0].strip() == 'UP' or com[0].strip() == 'UPARROW':
         add = '  typeKey(KEY_UP_ARROW);\n'
         script.append(add)
@@ -168,11 +201,17 @@ def parse(str):
         add = '  typeKey(KEY_RETURN);\n'
         script.append(add)
     elif com[0].strip() == 'REPEAT':
-        add = '  for(int i = 0; i < ' + com[1].strip() + '; i++) {\n    %s  \n  }\n' % add.strip()
-        script.append(add)
+        try:
+            if (not com[1].strip().isdecimal()):
+                raise IndexError
+            add = '  for(int i = 0; i < ' + com[1].strip() + '; i++) {\n    %s  \n  }\n' % add.strip()
+            script.append(add)
+        except IndexError:
+            print('[*] Error, in line "%s" invalid value' % str.strip())
+            sys.exit()
     elif com[0].strip()[:1] == 'F':
         if com[0].strip().upper() not in key_code:
-            print('[*] Error, in line: %s' % str)
+            print('[*] Error, in line "%s" invalid value' % str.strip())
             sys.exit()
         add = "  typeKey('%s');\n" % key(com[0].strip().upper())
         script.append(add)
