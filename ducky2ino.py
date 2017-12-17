@@ -183,7 +183,6 @@ if __name__ == "__main__":
         logo()
         print('ver 0.1 beta  2017')
         print('usage: ducky2ino.py [infile] [outfile]\n')
-        print('positional arguments:\n  infile\n  outfile')
         sys.exit()
 
     try:
