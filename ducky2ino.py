@@ -3,7 +3,7 @@
 
 import sys
 
-script = ['#include "Keyboard.h"\n\nvoid typeKey(uint8_t key)\n{\n  Keyboard.press(key);\n  delay(50);\n '
+script = ['#include "Keyboard.h"\n\nvoid typeKey(int key)\n{\n  Keyboard.press(key);\n  delay(50);\n '
           ' Keyboard.release(key);\n}\n\nvoid setup()\n{\n  Keyboard.begin();\n  delay(500);\n']
 
 
@@ -41,7 +41,7 @@ def key(key):
     elif (key >= '0') and (key <= '9') or \
          (key >= 'a') and (key <= 'z') or \
          (key >= 'A') and (key <= 'Z'):
-         return '"%s"' % key.lower()
+         return "'%s'" % key.lower()
     else:
         #print('Error! Unknown key "%s" ' % key)
         return 0
