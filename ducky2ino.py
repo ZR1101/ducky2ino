@@ -100,14 +100,14 @@ def parse(str):
             sys.exit()
     elif com[0] == 'STRING':
         try:
-            add = '  Keyboard.print(F("' + com[1].strip().replace('\"', '\\\"') + '"));\n'
+            add = '  Keyboard.print(F("' + com[1].strip().replace('\\', '\\\\').replace('"', '""') + '"));\n'
             script.append(add)
         except IndexError:
             print('[*] Error, in line "%s" invalid value' % str.strip())
             sys.exit()
     elif com[0] == 'GUI' or com[0] == 'WINDOWS':
         try:
-            add = '  typeKey(KEY_LEFT_GUI);\n'
+            add = '  Keyboard.write(KEY_LEFT_GUI);\n'
             k = com[1].strip()
             if (len(k) == 1) and (key(k) != 0):
                 add = ('  Keyboard.press(KEY_LEFT_GUI);\n  Keyboard.press(%s);\n  Keyboard.releaseAll();\n' %
